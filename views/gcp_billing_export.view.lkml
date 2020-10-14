@@ -5,7 +5,7 @@ view: gcp_billing_export {
         *,
         GENERATE_UUID() as pk
       FROM
-        gcp_logs.gcp_billing_export_v1_#####_#####_######
+        gcp_logs.gcp_billing_export_v1_019C8B_94FE08_C23EA5
       WHERE
         {% condition date_filter %} _PARTITIONTIME {% endcondition %} ;;
   }
@@ -13,7 +13,6 @@ view: gcp_billing_export {
   filter: date_filter {
     type: date
   }
-
 
   parameter: date_view {
     type: unquoted
@@ -111,13 +110,18 @@ view: gcp_billing_export {
     timeframes: [
       raw,
       time,
+      minute5,
+      minute15,
+      hour,
+      hour_of_day,
       date,
+      day_of_week,
+      day_of_month,
       week,
       month,
       month_name,
       month_num,
       week_of_year,
-      day_of_month,
       quarter,
       year
     ]
@@ -198,13 +202,18 @@ view: gcp_billing_export {
     timeframes: [
       raw,
       time,
+      minute5,
+      minute15,
+      hour,
+      hour_of_day,
       date,
+      day_of_week,
+      day_of_month,
       week,
       month,
       month_name,
       month_num,
       week_of_year,
-      day_of_month,
       quarter,
       year
     ]
@@ -217,13 +226,18 @@ view: gcp_billing_export {
     timeframes: [
       raw,
       time,
+      minute5,
+      minute15,
+      hour,
+      hour_of_day,
       date,
+      day_of_week,
+      day_of_month,
       week,
       month,
       month_name,
       month_num,
       week_of_year,
-      day_of_month,
       quarter,
       year
     ]

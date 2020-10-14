@@ -1,10 +1,8 @@
 view: bigquery_data_access {
   derived_table: {
+    persist_for: "1 hour"
     sql:
-      SELECT
-        *
-      FROM
-        `auditv3.cloudaudit_googleapis_com_data_access`
+      SELECT * FROM `looker-mtla-20200125.gcp_logs.cloudaudit_googleapis_com_data_access`
       WHERE
         {% condition date_filter %} timestamp {% endcondition %} ;;
   }
@@ -45,9 +43,18 @@ view: bigquery_data_access {
     timeframes: [
       raw,
       time,
+      minute5,
+      minute15,
+      hour,
+      hour_of_day,
       date,
+      day_of_week,
+      day_of_month,
       week,
       month,
+      month_name,
+      month_num,
+      week_of_year,
       quarter,
       year
     ]
@@ -76,9 +83,18 @@ view: bigquery_data_access {
     timeframes: [
       raw,
       time,
+      minute5,
+      minute15,
+      hour,
+      hour_of_day,
       date,
+      day_of_week,
+      day_of_month,
       week,
       month,
+      month_name,
+      month_num,
+      week_of_year,
       quarter,
       year
     ]
@@ -92,46 +108,53 @@ view: bigquery_data_access {
 
 # warning! a MethodName filter must be applied to this measure (number_of_queries) to gain number of queries without double counting.
 # if you want the number of run queries, use jobservice.jobcompleted.
-# 1	google.cloud.bigquery.v2.JobService.GetQueryResults
-# 2	google.cloud.bigquery.v2.JobService.InsertJob
-# 3	google.cloud.bigquery.v2.TableDataService.List
-# 4	jobservice.cancel
-# 5	jobservice.getqueryresults
-# 6	jobservice.insert
-# 7	jobservice.jobcompleted
-# 8	jobservice.query
-# 9	tabledataservice.list
+# 1 google.cloud.bigquery.v2.JobService.GetQueryResults
+# 2 google.cloud.bigquery.v2.JobService.InsertJob
+# 3 google.cloud.bigquery.v2.TableDataService.List
+# 4 jobservice.cancel
+# 5 jobservice.getqueryresults
+# 6 jobservice.insert
+# 7 jobservice.jobcompleted
+# 8 jobservice.query
+# 9 tabledataservice.list
   measure: number_of_queries {
     view_label: "BigQuery Data Access: Query Statistics"
     type: count
     drill_fields: [bigquery_data_access_authentication_info.user_id
-                  , bigquery_data_access_job_statistics.start_time
-                  , bigquery_data_access_resource_labels.project_id
-                  , bigquery_data_access_query.query
-                  , bigquery_data_access_job_statistics.billed_gigabytes
-                  , bigquery_data_access_job_statistics.query_runtime
-                  , bigquery_data_access_job_statistics.query_cost
-                  , bigquery_data_access_job_status_error.code
-                  , bigquery_data_access_job_status_error.message]
+      , bigquery_data_access_job_statistics.start_time
+      , bigquery_data_access_resource_labels.project_id
+      , bigquery_data_access_query.query
+      , bigquery_data_access_job_statistics.billed_gigabytes
+      , bigquery_data_access_job_statistics.query_runtime
+      , bigquery_data_access_job_statistics.query_cost
+      , bigquery_data_access_job_status_error.code
+      , bigquery_data_access_job_status_error.message]
+  }
+
+  dimension: is_expensive {
+    type: yesno
+    sql: ${bigquery_data_access_job_statistics.billed_gigabytes} > 30  ;;
   }
 
   measure: number_of_expensive_queries {
     view_label: "BigQuery Data Access: Query Statistics"
+    description: "Queries with over 30 billed Gigabytes"
     type: count
     filters: {
-      field: bigquery_data_access_job_statistics.billed_gigabytes
-      value: ">30"
+      field: is_expensive
+      value: "yes"
     }
     drill_fields: [bigquery_data_access_authentication_info.user_id
-                  , bigquery_data_access_job_statistics.start_time
-                  , bigquery_data_access_resource_labels.project_id
-                  , bigquery_data_access_query.query
-                  , bigquery_data_access_job_statistics.billed_gigabytes
-                  , bigquery_data_access_job_statistics.query_runtime
-                  , bigquery_data_access_job_statistics.query_cost
-                  , bigquery_data_access_job_status_error.code
-                  , bigquery_data_access_job_status_error.message]
+      , bigquery_data_access_job_statistics.start_time
+      , bigquery_data_access_resource_labels.project_id
+      , bigquery_data_access_query.query
+      , bigquery_data_access_job_statistics.billed_gigabytes
+      , bigquery_data_access_job_statistics.query_runtime
+      , bigquery_data_access_job_statistics.query_cost
+      , bigquery_data_access_job_status_error.code
+      , bigquery_data_access_job_status_error.message]
   }
+
 }
 
 view: bigquery_data_access_resource {
@@ -429,7 +452,7 @@ view: bigquery_data_access_job_status {
   dimension: query_failed {
     type: yesno
     sql: ${error} IS NOT NULL ;;
-}
+  }
 }
 
 view: bigquery_data_access_job_status_error {
@@ -452,13 +475,23 @@ view: bigquery_data_access_job_statistics {
   }
 
   dimension_group: create {
+    # convert_tz: no
     type: time
     timeframes: [
       raw,
       time,
+      minute5,
+      minute15,
+      hour,
+      hour_of_day,
       date,
+      day_of_week,
+      day_of_month,
       week,
       month,
+      month_name,
+      month_num,
+      week_of_year,
       quarter,
       year
     ]
@@ -470,9 +503,18 @@ view: bigquery_data_access_job_statistics {
     timeframes: [
       raw,
       time,
+      minute5,
+      minute15,
+      hour,
+      hour_of_day,
       date,
+      day_of_week,
+      day_of_month,
       week,
       month,
+      month_name,
+      month_num,
+      week_of_year,
       quarter,
       year
     ]
@@ -484,9 +526,18 @@ view: bigquery_data_access_job_statistics {
     timeframes: [
       raw,
       time,
+      minute5,
+      minute15,
+      hour,
+      hour_of_day,
       date,
+      day_of_week,
+      day_of_month,
       week,
       month,
+      month_name,
+      month_num,
+      week_of_year,
       quarter,
       year
     ]
@@ -695,6 +746,12 @@ view: bigquery_data_access_query {
   dimension: query {
     type: string
     sql: ${TABLE}.query ;;
+  }
+
+  dimension: history_id {
+    type: number
+    sql: JSON_EXTRACT_SCALAR(REGEXP_EXTRACT(${query}, r"(\{.*?\})"), '$.history_id') ;;
+
   }
 
   dimension: table_definitions {

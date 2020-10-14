@@ -1,7 +1,8 @@
-connection: "sandbox"
+connection: "looker_mtal_bigquery"
 
-include: "*.view.lkml"         # include all views in this project
-include: "bigquery_audit.dashboard.lookml"  # include all dashboards in this project
+include: "/views/*.view.lkml"         # include all views in this project
+include: "/dashboards/bigquery_audit.dashboard.lookml"  # include all dashboards in this project
+include: "/dashboards/big_query_billing_usage.dashboard.lookml"  # include all dashboards in this project
 
 explore: bigquery_data_access {
   view_label: "BigQuery Data Access"
