@@ -748,6 +748,21 @@ view: bigquery_data_access_query {
     sql: ${TABLE}.query ;;
   }
 
+  dimension: derived_table_build {
+    type: string
+    sql:
+      CASE
+        WHEN STARTS_WITH(${query},"-- Building") THEN REGEXP_EXTRACT(${query}, r"-- Building persistent derived table(?s)(.*) on instance")
+        ELSE NULL
+      END
+    ;;
+  }
+
+  dimension: is_derived_table_build_dev_mode {
+    type: yesno
+    sql: REGEXP_CONTAINS(${derived_table_build}, r"dev mode") ;;
+  }
+
   dimension: history_id {
     type: number
     sql: JSON_EXTRACT_SCALAR(REGEXP_EXTRACT(${query}, r"(\{.*?\})"), '$.history_id') ;;
